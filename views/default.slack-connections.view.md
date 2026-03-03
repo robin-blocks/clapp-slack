@@ -27,7 +27,7 @@ Column(gap=5):
               AccountCard():
           Conditional(when=!slack.accounts.length):
             Heading(level=4): "No Slack accounts configured"
-        IntentButton(intent=slack.addAccount, label="Add Account", variant=secondary):
+        IntentButton(intent=slack.addAccount, label="Add Account"):
   
   Conditional(when=slack.showAccountEditor):
     AccountEditor(account=slack.editingAccount, saving=slack.saving, saveError=slack.saveError):
