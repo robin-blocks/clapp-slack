@@ -10,6 +10,8 @@ version: 0.1.0
 - `slack.error` -> string
 - `slack.showAccountEditor` -> boolean
 - `slack.editingAccount` -> object
+- `slack.saving` -> boolean
+- `slack.saveError` -> string
 
 ## Layout
 ```clapp-layout
@@ -28,7 +30,7 @@ Column(gap=5):
         IntentButton(intent=slack.addAccount, label="Add Account", variant=primary):
   
   Conditional(when=slack.showAccountEditor):
-    AccountEditor(account=slack.editingAccount):
+    AccountEditor(account=slack.editingAccount, saving=slack.saving, saveError=slack.saveError):
   
   Conditional(when=slack.error):
     Card(variant=destructive):
