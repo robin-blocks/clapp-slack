@@ -131,6 +131,13 @@ export class SlackHandler {
   };
 
   private init(): void {
+    // Reset editor state on init (in case it was left open)
+    const state = this.getCurrentState();
+    state.showAccountEditor = false;
+    state.editingAccount = null;
+    state.saveError = undefined;
+    this.pushState(state);
+    
     this.refreshState();
   }
 
