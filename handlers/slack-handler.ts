@@ -1,5 +1,6 @@
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
-import { resolve, homedir } from "node:path";
+import { resolve } from "node:path";
+import { homedir } from "node:os";
 import { exec } from "node:child_process";
 import { promisify } from "node:util";
 import type { IntentMessage } from "@clapps/core";
