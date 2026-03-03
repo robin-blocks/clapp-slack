@@ -1,0 +1,33 @@
+{
+  "name": "@clapps/slack",
+  "version": "0.1.0",
+  "description": "Slack integration manager for OpenClaw",
+  "author": "openclaw",
+  "license": "MIT",
+  "main": "views/slack.app.md",
+  "views": [
+    "views/slack.app.md",
+    "views/default.slack-connections.view.md",
+    "views/default.slack-channels.view.md",
+    "views/default.slack-settings.view.md",
+    "views/default.slack-status.view.md"
+  ],
+  "components": [
+    "components/AccountCard.tsx",
+    "components/AccountEditor.tsx",
+    "components/ChannelList.tsx",
+    "components/ChannelEditor.tsx",
+    "components/PolicySelector.tsx",
+    "components/FeatureToggles.tsx",
+    "components/SlashCommandConfig.tsx",
+    "components/ConnectionStatus.tsx"
+  ],
+  "handlers": [
+    "handlers/slack-handler.ts"
+  ],
+  "openclaw": {
+    "minVersion": "2026.3.0",
+    "permissions": ["config", "channels", "pairing"],
+    "default": false
+  }
+}
