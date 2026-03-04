@@ -8,6 +8,8 @@ import type { StateStore } from "./state-store.js";
 
 const execAsync = promisify(exec);
 
+type ConfigChangedHook = () => Promise<void>;
+
 /** Run `openclaw config set <path> <value>` with proper arg splitting */
 function configSet(pathAndValue: string): Promise<{ stdout: string; stderr: string }> {
   const eqIdx = pathAndValue.indexOf("=");
@@ -19,6 +21,7 @@ function configSet(pathAndValue: string): Promise<{ stdout: string; stderr: stri
 export interface SlackHandlerOptions {
   stateDir: string;
   store: StateStore;
+  onConfigChanged?: ConfigChangedHook;
 }
 
 interface SlackAccount {
@@ -69,11 +72,13 @@ export class SlackHandler {
   private stateDir: string;
   private store: StateStore;
   private configPath: string;
+  private onConfigChanged?: ConfigChangedHook;
 
   constructor(options: SlackHandlerOptions) {
     this.stateDir = options.stateDir;
     this.store = options.store;
     this.configPath = resolve(homedir(), ".openclaw", "openclaw.json");
+    this.onConfigChanged = options.onConfigChanged;
   }
 
   handleIntent = (intent: IntentMessage): boolean => {
@@ -330,7 +335,7 @@ export class SlackHandler {
       }
 
       // Sync config to gateway user and restart
-      await this.syncConfigToGateway();
+      await this.onConfigChanged?.();
 
       // Success — show message, refresh accounts list in background
       const successState = this.getCurrentState();
@@ -391,18 +396,6 @@ export class SlackHandler {
     }
   }
 
-  /** Copy root's openclaw config to the gateway user and restart the service */
-  private async syncConfigToGateway(): Promise<void> {
-    try {
-      const rootConfig = resolve(homedir(), ".openclaw", "openclaw.json");
-      await execAsync(`cp ${rootConfig} /home/openclaw/.openclaw/openclaw.json && chown openclaw:openclaw /home/openclaw/.openclaw/openclaw.json`);
-      await execAsync("systemctl restart openclaw", { timeout: 10000 });
-      console.log("[slack] Config synced to gateway user and service restarted");
-    } catch (err) {
-      console.warn(`[slack] Failed to sync config to gateway: ${(err as Error).message}`);
-    }
-  }
-
   private async disableAccount(accountId: string): Promise<void> {
     try {
       const config = this.loadConfig();
@@ -418,7 +411,7 @@ export class SlackHandler {
         await configSet(`channels.slack.accounts.${accountId}.enabled=${!currentlyEnabled}`);
       }
 
-      await this.syncConfigToGateway();
+      await this.onConfigChanged?.();
       await this.refreshState();
     } catch (err) {
       this.pushError((err as Error).message);
@@ -441,7 +434,7 @@ export class SlackHandler {
       }
 
       writeFileSync(this.configPath, JSON.stringify(config, null, 2), "utf-8");
-      await this.syncConfigToGateway();
+      await this.onConfigChanged?.();
       await this.refreshState();
     } catch (err) {
       this.pushError((err as Error).message);
