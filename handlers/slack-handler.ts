@@ -21,6 +21,7 @@ function configSet(pathAndValue: string): Promise<{ stdout: string; stderr: stri
 export interface SlackHandlerOptions {
   stateDir: string;
   store: StateStore;
+  openclawHome?: string;
   onConfigChanged?: ConfigChangedHook;
 }
 
@@ -77,7 +78,7 @@ export class SlackHandler {
   constructor(options: SlackHandlerOptions) {
     this.stateDir = options.stateDir;
     this.store = options.store;
-    this.configPath = resolve(homedir(), ".openclaw", "openclaw.json");
+    this.configPath = resolve(options.openclawHome ?? homedir(), ".openclaw", "openclaw.json");
     this.onConfigChanged = options.onConfigChanged;
   }
 
